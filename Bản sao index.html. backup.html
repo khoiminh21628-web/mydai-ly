@@ -1,0 +1,1291 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MYDAI-LY | Personal Planner</title>
+
+<style>
+:root {
+  --navy: #172b4d;
+  --blue: #245b72;
+  --teal: #247e80;
+  --orange: #e69a50;
+  --bg: #f1f5f9;
+  --white: #ffffff;
+  --text: #26364a;
+  --muted: #718096;
+  --border: #e0e8ef;
+  --shadow: 0 8px 25px rgba(23,43,77,.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 5% 5%, #dceeff 0, transparent 28%),
+    radial-gradient(circle at 95% 15%, #d9f3ed 0, transparent 28%),
+    linear-gradient(135deg, #f3f6fa, #eef3f7);
+  background-attachment: fixed;
+}
+
+button, input, select {
+  font: inherit;
+}
+
+button {
+  border: none;
+  border-radius: 11px;
+  background: var(--teal);
+  color: white;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: .2s;
+}
+
+button:hover {
+  background: #185e67;
+  transform: translateY(-2px);
+}
+
+button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+header {
+  background: linear-gradient(115deg, #172b4d, #245b72, #278b88);
+  color: white;
+  text-align: center;
+  padding: 32px 15px;
+  border-radius: 0 0 26px 26px;
+  margin: 0 15px 22px;
+  box-shadow: var(--shadow);
+}
+
+header h1 {
+  margin: 0;
+  font-size: clamp(28px, 5vw, 42px);
+  letter-spacing: 2px;
+}
+
+header p {
+  color: #dcecf2;
+  margin: 10px 0 0;
+}
+
+.container {
+  width: min(1200px, 94%);
+  margin: auto;
+  padding-bottom: 50px;
+}
+
+.panel {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 22px;
+  margin-bottom: 22px;
+  box-shadow: var(--shadow);
+}
+
+h2 {
+  color: var(--blue);
+  margin: 0 0 17px;
+  font-size: 21px;
+}
+
+h3 {
+  margin-top: 0;
+  color: var(--navy);
+}
+
+p {
+  line-height: 1.6;
+}
+
+input, select {
+  width: 100%;
+  border: 1px solid #d5e0e9;
+  border-radius: 10px;
+  padding: 11px;
+  background: white;
+  color: var(--text);
+  outline-color: var(--teal);
+  min-width: 0;
+}
+
+.input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.input-row input {
+  flex: 1;
+}
+
+.task-layout {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.column {
+  padding: 16px;
+  border-radius: 17px;
+  border: 1px solid var(--border);
+  min-width: 0;
+}
+
+.column.important {
+  background: linear-gradient(145deg, #fce9e7, #fff6f3);
+}
+
+.column.daily {
+  background: linear-gradient(145deg, #fff1d9, #fffaf0);
+}
+
+.column.consider {
+  background: linear-gradient(145deg, #e5f0fa, #f3f8fd);
+}
+
+.column h3 {
+  font-size: 16px;
+  min-height: 38px;
+}
+
+.task-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.task {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  overflow-wrap: anywhere;
+}
+
+.task.done {
+  opacity: .65;
+}
+
+.task.done .task-name {
+  text-decoration: line-through;
+}
+
+.task-name {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.task-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.task-actions button {
+  font-size: 12px;
+  padding: 7px 9px;
+}
+
+.complete-btn {
+  background: #247e80;
+}
+
+.delete-btn {
+  background: #b85c5c;
+}
+
+.undo-btn {
+  background: #64748b;
+}
+
+.empty {
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+  padding: 12px 4px;
+}
+
+/* STATS */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.stat {
+  padding: 17px;
+  border-radius: 15px;
+  background: #edf3f8;
+  text-align: center;
+}
+
+.stat .number {
+  display: block;
+  font-size: 25px;
+  font-weight: 800;
+  color: var(--navy);
+  margin-top: 6px;
+}
+
+.stat .label {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.progress-track {
+  background: #e4ebf0;
+  height: 12px;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #247e80, #60b9a6);
+  width: 0%;
+  transition: .3s;
+}
+
+/* REWARDS */
+
+.reward-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.reward-box {
+  background: linear-gradient(120deg, #fff3dc, #e6f4f1);
+  border: 1px solid var(--border);
+  border-radius: 17px;
+  padding: 18px;
+}
+
+.reward-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 11px;
+  background: white;
+  border: 1px solid var(--border);
+}
+
+.reward-item small {
+  color: var(--muted);
+}
+
+.reward-item button {
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.badge-item {
+  padding: 12px;
+  border-radius: 12px;
+  background: #edf3f8;
+  text-align: center;
+  min-width: 105px;
+}
+
+.badge-item.locked {
+  opacity: .4;
+  filter: grayscale(1);
+}
+
+/* CALENDAR */
+
+.calendar-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.calendar-top button {
+  padding: 8px 13px;
+}
+
+.calendar-title {
+  font-size: 18px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.weekday {
+  text-align: center;
+  font-weight: bold;
+  color: var(--blue);
+  padding: 8px 0;
+  font-size: 13px;
+}
+
+.day {
+  background: #edf3f8;
+  border-radius: 9px;
+  min-height: 65px;
+  padding: 7px;
+  cursor: pointer;
+  position: relative;
+  transition: .2s;
+}
+
+.day:hover {
+  background: #d2e8e9;
+}
+
+.day.today {
+  border: 2px solid var(--orange);
+}
+
+.day.selected {
+  background: var(--teal);
+  color: white;
+}
+
+.day.other-month {
+  opacity: .3;
+}
+
+.day .date-number {
+  font-weight: 700;
+}
+
+.day .event-dot {
+  font-size: 10px;
+  margin-top: 5px;
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.event-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 9px;
+  margin-top: 18px;
+}
+
+/* COUNTDOWN */
+
+.countdown {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.countdown-box {
+  background: linear-gradient(135deg, #e2edf8, #d9f0ec);
+  border-radius: 13px;
+  padding: 16px 8px;
+  text-align: center;
+}
+
+.countdown-box strong {
+  display: block;
+  font-size: 25px;
+  color: var(--navy);
+}
+
+.countdown-box span {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* TIMER */
+
+.timer-box {
+  text-align: center;
+  background: linear-gradient(135deg, #e2edf8, #d9f0ec);
+  border-radius: 18px;
+  padding: 24px;
+}
+
+.timer-display {
+  font-size: clamp(42px, 8vw, 65px);
+  font-weight: 800;
+  color: var(--navy);
+  margin: 14px 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.timer-controls {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 15px;
+}
+
+.timer-setting {
+  max-width: 160px;
+  margin: 10px auto;
+}
+
+.timer-setting input {
+  text-align: center;
+}
+
+/* FOOTER */
+
+footer {
+  text-align: center;
+  padding: 25px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.stickers {
+  position: fixed;
+  bottom: 12px;
+  right: 16px;
+  font-size: 19px;
+  opacity: .75;
+  pointer-events: none;
+  z-index: 5;
+}
+
+@media(max-width: 800px) {
+  .task-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .reward-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media(max-width: 520px) {
+  header {
+    margin: 0 6px 15px;
+    border-radius: 0 0 20px 20px;
+  }
+
+  .panel {
+    padding: 15px;
+  }
+
+  .event-form {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-grid {
+    gap: 3px;
+  }
+
+  .day {
+    min-height: 49px;
+    padding: 4px;
+    font-size: 12px;
+  }
+
+  .day .event-dot {
+    font-size: 9px;
+  }
+
+  .countdown {
+    gap: 5px;
+  }
+
+  .countdown-box {
+    padding: 12px 4px;
+  }
+
+  .countdown-box strong {
+    font-size: 20px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>MYDAI-LY</h1>
+  <p>Plan your day. Build your future. ✦</p>
+  <p>⚡ Focus • 🎯 Progress • 🚀 Improve</p>
+</header>
+
+<main class="container">
+
+  <!-- THỐNG KÊ -->
+
+  <section class="panel">
+    <h2>📊 Tổng quan của bạn</h2>
+
+    <div class="stats-grid">
+      <div class="stat">
+        <span class="label">Cấp độ</span>
+        <span class="number" id="level">1</span>
+      </div>
+
+      <div class="stat">
+        <span class="label">Xu hiện có</span>
+        <span class="number" id="coins">0</span>
+      </div>
+
+      <div class="stat">
+        <span class="label">Kinh nghiệm</span>
+        <span class="number" id="xp">0</span>
+      </div>
+
+      <div class="stat">
+        <span class="label">Việc hoàn thành</span>
+        <span class="number" id="completed">0</span>
+      </div>
+    </div>
+
+    <p id="levelText">Tiến độ lên cấp tiếp theo: 0/100 XP</p>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress"></div>
+    </div>
+  </section>
+
+  <!-- CÔNG VIỆC -->
+
+  <section class="panel">
+    <h2>🎯 Quản lý công việc</h2>
+    <p>Hoàn thành nhiệm vụ để nhận xu và kinh nghiệm.</p>
+
+    <div class="task-layout">
+
+      <div class="column important">
+        <h3>🔴 Việc rất quan trọng</h3>
+        <div class="task-form">
+          <input id="importantInput" placeholder="Nhập công việc...">
+          <button onclick="addTask('important')">+ Thêm công việc</button>
+        </div>
+        <div class="task-list" id="importantList"></div>
+      </div>
+
+      <div class="column daily">
+        <h3>🟠 Việc cần thiết trong ngày</h3>
+        <div class="task-form">
+          <input id="dailyInput" placeholder="Nhập công việc...">
+          <button onclick="addTask('daily')">+ Thêm công việc</button>
+        </div>
+        <div class="task-list" id="dailyList"></div>
+      </div>
+
+      <div class="column consider">
+        <h3>🔵 Việc cân nhắc thực hiện</h3>
+        <div class="task-form">
+          <input id="considerInput" placeholder="Nhập công việc...">
+          <button onclick="addTask('consider')">+ Thêm công việc</button>
+        </div>
+        <div class="task-list" id="considerList"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PHẦN THƯỞNG -->
+
+  <section class="panel">
+    <h2>🏆 Thành tích và phần thưởng</h2>
+
+    <div class="reward-grid">
+
+      <div class="reward-box">
+        <h3>🎖️ Huy hiệu của bạn</h3>
+        <div class="badges" id="badges"></div>
+      </div>
+
+      <div class="reward-box">
+        <h3>🎁 Cửa hàng phần thưởng</h3>
+        <p>Đặt phần thưởng bạn muốn nhận sau khi tích lũy đủ xu.</p>
+
+        <div class="task-form">
+          <input id="rewardName" placeholder="Tên phần thưởng">
+          <input id="rewardCost" type="number" min="1" placeholder="Số xu cần đổi">
+          <button onclick="addReward()">+ Tạo phần thưởng</button>
+        </div>
+
+        <div id="rewardList"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- LỊCH -->
+
+  <section class="panel">
+    <h2>📅 Lịch cá nhân</h2>
+
+    <div class="calendar-top">
+      <button onclick="changeMonth(-1)">←</button>
+      <div class="calendar-title" id="calendarTitle"></div>
+      <button onclick="changeMonth(1)">→</button>
+    </div>
+
+    <div class="calendar-grid" id="calendar"></div>
+
+    <div class="event-form">
+      <input type="date" id="eventDate">
+      <input id="eventName" placeholder="Tên sự kiện hoặc cột mốc">
+      <button onclick="saveEvent()">Lưu sự kiện</button>
+    </div>
+
+    <div id="eventInfo" style="margin-top:18px;">
+      <p>Chọn một ngày trên lịch để xem hoặc tạo sự kiện.</p>
+    </div>
+
+    <div id="countdownArea"></div>
+  </section>
+
+  <!-- ĐỒNG HỒ TẬP TRUNG -->
+
+  <section class="panel">
+    <h2>⏱️ Đồng hồ tập trung</h2>
+
+    <div class="timer-box">
+      <p>Hãy dành thời gian cho điều thực sự quan trọng.</p>
+
+      <div class="timer-setting">
+        <label for="timerMinutes">Thời gian tập trung (phút)</label>
+        <input type="number" id="timerMinutes" value="25" min="1" max="180">
+      </div>
+
+      <div class="timer-display" id="timerDisplay">25:00</div>
+
+      <div class="timer-controls">
+        <button onclick="startTimer()">▶ Bắt đầu</button>
+        <button onclick="pauseTimer()">⏸ Tạm dừng</button>
+        <button onclick="resetTimer()">↻ Đặt lại</button>
+      </div>
+
+      <p id="timerMessage">Sẵn sàng bắt đầu!</p>
+    </div>
+  </section>
+
+</main>
+
+<div class="stickers">⚡ ✦ 🪐 🎯 🚀</div>
+
+<footer>
+  MYDAI-LY © 2026 — Make every day count.
+</footer>
+
+<script>
+/* =========================
+   LƯU DỮ LIỆU
+========================= */
+
+function loadData(key, fallback) {
+  try {
+    const value = localStorage.getItem(key);
+    return value === null ? fallback : JSON.parse(value);
+  } catch {
+    return fallback;
+  }
+}
+
+let tasks = loadData("mydaily_tasks", []);
+let coins = loadData("mydaily_coins", 0);
+let xp = loadData("mydaily_xp", 0);
+let rewards = loadData("mydaily_rewards", []);
+let events = loadData("mydaily_events", {});
+
+function saveData() {
+  localStorage.setItem("mydaily_tasks", JSON.stringify(tasks));
+  localStorage.setItem("mydaily_coins", JSON.stringify(coins));
+  localStorage.setItem("mydaily_xp", JSON.stringify(xp));
+  localStorage.setItem("mydaily_rewards", JSON.stringify(rewards));
+  localStorage.setItem("mydaily_events", JSON.stringify(events));
+}
+
+/* =========================
+   CÔNG VIỆC
+========================= */
+
+const categories = ["important", "daily", "consider"];
+
+function addTask(category) {
+  const input = document.getElementById(category + "Input");
+  const name = input.value.trim();
+
+  if (!name) {
+    alert("Bạn hãy nhập tên công việc!");
+    return;
+  }
+
+  tasks.push({
+    id: Date.now() + Math.random(),
+    name: name,
+    category: category,
+    done: false
+  });
+
+  input.value = "";
+  saveData();
+  renderTasks();
+}
+
+function completeTask(id) {
+  const task = tasks.find(t => t.id === id);
+
+  if (!task || task.done) return;
+
+  task.done = true;
+  coins += 10;
+  xp += 10;
+
+  saveData();
+  renderAll();
+  alert("Hoàn thành công việc! Bạn nhận được 10 xu và 10 XP.");
+}
+
+function undoTask(id) {
+  const task = tasks.find(t => t.id === id);
+
+  if (!task || !task.done) return;
+
+  task.done = false;
+  coins = Math.max(0, coins - 10);
+  xp = Math.max(0, xp - 10);
+
+  saveData();
+  renderAll();
+}
+
+function deleteTask(id) {
+  const task = tasks.find(t => t.id === id);
+
+  if (!task) return;
+
+  if (task.done) {
+    coins = Math.max(0, coins - 10);
+    xp = Math.max(0, xp - 10);
+  }
+
+  tasks = tasks.filter(t => t.id !== id);
+
+  saveData();
+  renderAll();
+}
+
+function renderTasks() {
+  categories.forEach(category => {
+    const list = document.getElementById(category + "List");
+    const filtered = tasks.filter(t => t.category === category);
+
+    list.innerHTML = "";
+
+    if (filtered.length === 0) {
+      list.innerHTML = '<div class="empty">Chưa có công việc nào.</div>';
+      return;
+    }
+
+    filtered.forEach(task => {
+      const div = document.createElement("div");
+      div.className = "task" + (task.done ? " done" : "");
+
+      const name = document.createElement("div");
+      name.className = "task-name";
+      name.textContent = task.name;
+
+      const actions = document.createElement("div");
+      actions.className = "task-actions";
+
+      if (task.done) {
+        const undo = document.createElement("button");
+        undo.className = "undo-btn";
+        undo.textContent = "Hoàn tác";
+        undo.onclick = () => undoTask(task.id);
+        actions.appendChild(undo);
+      } else {
+        const complete = document.createElement("button");
+        complete.className = "complete-btn";
+        complete.textContent = "✓ Hoàn thành";
+        complete.onclick = () => completeTask(task.id);
+        actions.appendChild(complete);
+      }
+
+      const del = document.createElement("button");
+      del.className = "delete-btn";
+      del.textContent = "Xóa";
+      del.onclick = () => deleteTask(task.id);
+
+      actions.appendChild(del);
+      div.appendChild(name);
+      div.appendChild(actions);
+      list.appendChild(div);
+    });
+  });
+}
+
+/* =========================
+   CẤP ĐỘ VÀ HUY HIỆU
+========================= */
+
+function renderStats() {
+  const completed = tasks.filter(t => t.done).length;
+  const level = Math.floor(xp / 100) + 1;
+  const progress = xp % 100;
+
+  document.getElementById("level").textContent = level;
+  document.getElementById("coins").textContent = coins;
+  document.getElementById("xp").textContent = xp;
+  document.getElementById("completed").textContent = completed;
+
+  document.getElementById("levelText").textContent =
+    `Tiến độ lên cấp tiếp theo: ${progress}/100 XP`;
+
+  document.getElementById("progress").style.width = progress + "%";
+
+  const badgeData = [
+    { count: 1, icon: "🌱", name: "Khởi đầu" },
+    { count: 5, icon: "⚡", name: "Bắt nhịp" },
+    { count: 10, icon: "🎯", name: "Tập trung" },
+    { count: 25, icon: "🏅", name: "Kiên trì" },
+    { count: 50, icon: "🚀", name: "Bứt phá" },
+    { count: 100, icon: "👑", name: "Bậc thầy" }
+  ];
+
+  const badgeContainer = document.getElementById("badges");
+  badgeContainer.innerHTML = "";
+
+  badgeData.forEach(badge => {
+    const unlocked = completed >= badge.count;
+    const div = document.createElement("div");
+
+    div.className = "badge-item" + (unlocked ? "" : " locked");
+    div.innerHTML = `
+      <div style="font-size:25px">${badge.icon}</div>
+      <strong>${badge.name}</strong>
+      <div style="font-size:11px">${badge.count} công việc</div>
+    `;
+
+    badgeContainer.appendChild(div);
+  });
+}
+
+/* =========================
+   PHẦN THƯỞNG
+========================= */
+
+function addReward() {
+  const nameInput = document.getElementById("rewardName");
+  const costInput = document.getElementById("rewardCost");
+
+  const name = nameInput.value.trim();
+  const cost = Number(costInput.value);
+
+  if (!name || !Number.isInteger(cost) || cost <= 0) {
+    alert("Hãy nhập tên phần thưởng và số xu hợp lệ!");
+    return;
+  }
+
+  rewards.push({
+    id: Date.now() + Math.random(),
+    name: name,
+    cost: cost
+  });
+
+  nameInput.value = "";
+  costInput.value = "";
+
+  saveData();
+  renderRewards();
+}
+
+function redeemReward(id) {
+  const reward = rewards.find(r => r.id === id);
+
+  if (!reward) return;
+
+  if (coins < reward.cost) {
+    alert("Bạn chưa có đủ xu để đổi phần thưởng này!");
+    return;
+  }
+
+  if (!confirm(`Bạn có muốn đổi "${reward.name}" với ${reward.cost} xu?`)) {
+    return;
+  }
+
+  coins -= reward.cost;
+
+  saveData();
+  renderAll();
+
+  alert("Đổi phần thưởng thành công! 🎉");
+}
+
+function deleteReward(id) {
+  rewards = rewards.filter(r => r.id !== id);
+  saveData();
+  renderRewards();
+}
+
+function renderRewards() {
+  const container = document.getElementById("rewardList");
+  container.innerHTML = "";
+
+  if (rewards.length === 0) {
+    container.innerHTML = '<div class="empty">Bạn chưa tạo phần thưởng nào.</div>';
+    return;
+  }
+
+  rewards.forEach(reward => {
+    const div = document.createElement("div");
+    div.className = "reward-item";
+
+    const info = document.createElement("div");
+    info.innerHTML = `<strong></strong><br><small></small>`;
+    info.querySelector("strong").textContent = reward.name;
+    info.querySelector("small").textContent = reward.cost + " xu";
+
+    const actions = document.createElement("div");
+
+    const redeem = document.createElement("button");
+    redeem.textContent = "Đổi";
+    redeem.disabled = coins < reward.cost;
+    redeem.onclick = () => redeemReward(reward.id);
+
+    const del = document.createElement("button");
+    del.textContent = "×";
+    del.style.background = "#b85c5c";
+    del.style.marginLeft = "4px";
+    del.onclick = () => deleteReward(reward.id);
+
+    actions.appendChild(redeem);
+    actions.appendChild(del);
+
+    div.appendChild(info);
+    div.appendChild(actions);
+    container.appendChild(div);
+  });
+}
+
+/* =========================
+   LỊCH VIỆT NAM
+========================= */
+
+let calendarDate = new Date();
+let selectedDate = toDateKey(new Date());
+
+function toDateKey(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function changeMonth(amount) {
+  calendarDate.setMonth(calendarDate.getMonth() + amount);
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const year = calendarDate.getFullYear();
+  const month = calendarDate.getMonth();
+
+  const title = document.getElementById("calendarTitle");
+  title.textContent = `Tháng ${month + 1} năm ${year}`;
+
+  const container = document.getElementById("calendar");
+  container.innerHTML = "";
+
+  const weekdays = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
+
+  weekdays.forEach(day => {
+    const div = document.createElement("div");
+    div.className = "weekday";
+    div.textContent = day;
+    container.appendChild(div);
+  });
+
+  const firstDay = new Date(year, month, 1);
+  const startDay = (firstDay.getDay() + 6) % 7;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const today = toDateKey(new Date());
+
+  for (let i = 0; i < startDay; i++) {
+    const blank = document.createElement("div");
+    container.appendChild(blank);
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = new Date(year, month, day);
+    const key = toDateKey(date);
+
+    const div = document.createElement("div");
+    div.className = "day";
+
+    if (key === today) div.classList.add("today");
+    if (key === selectedDate) div.classList.add("selected");
+
+    const number = document.createElement("div");
+    number.className = "date-number";
+    number.textContent = day;
+    div.appendChild(number);
+
+    if (events[key]) {
+      const event = document.createElement("span");
+      event.className = "event-dot";
+      event.textContent = "● " + events[key].name;
+      div.appendChild(event);
+    }
+
+    div.onclick = () => {
+      selectedDate = key;
+      document.getElementById("eventDate").value = key;
+      document.getElementById("eventName").value = events[key]?.name || "";
+      renderCalendar();
+      showEventInfo();
+    };
+
+    container.appendChild(div);
+  }
+
+  showEventInfo();
+}
+
+function saveEvent() {
+  const date = document.getElementById("eventDate").value;
+  const name = document.getElementById("eventName").value.trim();
+
+  if (!date || !name) {
+    alert("Hãy chọn ngày và nhập tên sự kiện!");
+    return;
+  }
+
+  events[date] = { name: name };
+  selectedDate = date;
+  calendarDate = new Date(date + "T12:00:00");
+
+  saveData();
+  renderCalendar();
+}
+
+function deleteEvent() {
+  if (!events[selectedDate]) return;
+
+  if (!confirm("Bạn có chắc muốn xóa sự kiện này?")) return;
+
+  delete events[selectedDate];
+
+  saveData();
+  renderCalendar();
+  document.getElementById("eventName").value = "";
+}
+
+function showEventInfo() {
+  const info = document.getElementById("eventInfo");
+  const event = events[selectedDate];
+
+  if (!selectedDate) {
+    info.innerHTML = "<p>Chọn một ngày để xem sự kiện.</p>";
+    return;
+  }
+
+  const dateText = new Date(selectedDate + "T12:00:00")
+    .toLocaleDateString("vi-VN", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    });
+
+  if (!event) {
+    info.innerHTML = `<p>📌 Ngày được chọn: <strong>${dateText}</strong></p>
+      <p>Chưa có sự kiện nào được lưu cho ngày này.</p>`;
+    document.getElementById("countdownArea").innerHTML = "";
+    return;
+  }
+
+  info.innerHTML = `
+    <p>📌 Sự kiện: <strong id="selectedEventName"></strong></p>
+    <p>🗓️ Ngày: ${dateText}</p>
+    <button onclick="deleteEvent()" style="background:#b85c5c">
+      Xóa sự kiện
+    </button>
+  `;
+
+  document.getElementById("selectedEventName").textContent = event.name;
+
+  updateCountdown();
+}
+
+/* =========================
+   ĐẾM NGƯỢC SỰ KIỆN
+========================= */
+
+function updateCountdown() {
+  const area = document.getElementById("countdownArea");
+  const event = events[selectedDate];
+
+  if (!event) {
+    area.innerHTML = "";
+    return;
+  }
+
+  const target = new Date(selectedDate + "T00:00:00").getTime();
+  const now = Date.now();
+  const difference = target - now;
+
+  if (difference <= 0) {
+    area.innerHTML = `
+      <h3>🎉 Sự kiện đã đến hoặc đã diễn ra!</h3>
+      <p>${event.name}</p>
+    `;
+    return;
+  }
+
+  const days = Math.floor(difference / 86400000);
+  const hours = Math.floor((difference % 86400000) / 3600000);
+  const minutes = Math.floor((difference % 3600000) / 60000);
+  const seconds = Math.floor((difference % 60000) / 1000);
+
+  area.innerHTML = `
+    <h3 style="margin-top:20px">⏳ Đếm ngược đến sự kiện</h3>
+    <div class="countdown">
+      <div class="countdown-box">
+        <strong>${days}</strong><span>Ngày</span>
+      </div>
+      <div class="countdown-box">
+        <strong>${hours}</strong><span>Giờ</span>
+      </div>
+      <div class="countdown-box">
+        <strong>${minutes}</strong><span>Phút</span>
+      </div>
+      <div class="countdown-box">
+        <strong>${seconds}</strong><span>Giây</span>
+      </div>
+    </div>
+  `;
+}
+
+/* =========================
+   ĐỒNG HỒ TẬP TRUNG
+========================= */
+
+let timerSeconds = 25 * 60;
+let timerInterval = null;
+
+function displayTimer() {
+  const minutes = Math.floor(timerSeconds / 60);
+  const seconds = timerSeconds % 60;
+
+  document.getElementById("timerDisplay").textContent =
+    String(minutes).padStart(2, "0") + ":" +
+    String(seconds).padStart(2, "0");
+}
+
+function startTimer() {
+  if (timerInterval) return;
+
+  if (timerSeconds <= 0) {
+    resetTimer();
+  }
+
+  document.getElementById("timerMessage").textContent = "Đang tập trung...";
+
+  timerInterval = setInterval(() => {
+    timerSeconds--;
+    displayTimer();
+
+    if (timerSeconds <= 0) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      document.getElementById("timerMessage").textContent =
+        "🎉 Hoàn thành phiên tập trung! Hãy nghỉ ngơi một chút.";
+      alert("Bạn đã hoàn thành thời gian tập trung!");
+    }
+  }, 1000);
+}
+
+function pauseTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+  document.getElementById("timerMessage").textContent = "Đã tạm dừng.";
+}
+
+function resetTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+
+  let minutes = Number(document.getElementById("timerMinutes").value);
+
+  if (!Number.isInteger(minutes) || minutes < 1 || minutes > 180) {
+    minutes = 25;
+    document.getElementById("timerMinutes").value = 25;
+  }
+
+  timerSeconds = minutes * 60;
+  displayTimer();
+  document.getElementById("timerMessage").textContent = "Sẵn sàng bắt đầu!";
+}
+
+document.getElementById("timerMinutes").addEventListener("change", () => {
+  if (!timerInterval) resetTimer();
+});
+
+/* =========================
+   KHỞI ĐỘNG WEBSITE
+========================= */
+
+function renderAll() {
+  renderTasks();
+  renderStats();
+  renderRewards();
+}
+
+renderAll();
+renderCalendar();
+displayTimer();
+
+setInterval(() => {
+  if (events[selectedDate]) updateCountdown();
+}, 1000);
+
+document.getElementById("eventDate").value = selectedDate;
+</script>
+
+</body>
+</html>
